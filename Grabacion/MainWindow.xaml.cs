@@ -71,7 +71,28 @@ namespace Grabacion
 
 
             double acumulador = 0;
-            double numMuestras = 0;
+            double numMuestras = bytesGrabados / 2;
+            int exponente = 1;
+            int numeroMuestrasComplejas = 0;
+            int bitsMaximos = 0;
+
+            do //1,200
+            {
+                bitsMaximos = (int) Math.Pow(2, exponente);
+                exponente++;
+            } while (bitsMaximos < numMuestras);
+
+            //bitsMaximos = 2048
+            //exponente = 12
+
+            //numeroMuestrasComplejas = 1024
+            //exponente = 10
+
+            exponente -= 2;
+            numeroMuestrasComplejas = bitsMaximos / 2;
+
+            Complex[] muestrasComplejas =
+                new Complex[numeroMuestrasComplejas];
 
             for (int i=0; i < bytesGrabados; i+=2)
             {
@@ -86,13 +107,32 @@ namespace Grabacion
                 float muestra32bits = (float)muestra / 32768.0f;
                 sldVolumen.Value = Math.Abs(muestra32bits);
 
+                if (i / 2 < numeroMuestrasComplejas)
+                {
+                    muestrasComplejas[i / 2].X = muestra32bits;
+                }
                 //acumulador += muestra;
                 //numMuestras++;
             }
-            double promedio = acumulador / numMuestras;
-            sldVolumen.Value = promedio;
+            //double promedio = acumulador / numMuestras;
+            //sldVolumen.Value = promedio;
             //writer.Write(buffer, 0, bytesGrabados);
-           
+
+            FastFourierTransform.FFT(true, exponente, muestrasComplejas);
+            float[] valoresAbsolutos = 
+                new float[muestrasComplejas.Length];
+            for(int i=0; i <muestrasComplejas.Length; i++)
+            {
+                valoresAbsolutos[i] = (float)
+                    Math.Sqrt((muestrasComplejas[i].X * muestrasComplejas[i].X) +
+                    (muestrasComplejas[i].Y * muestrasComplejas[i].Y));
+
+            }
+
+            int indiceMaximo =
+                valoresAbsolutos.ToList().IndexOf(
+                    valoresAbsolutos.Max());
+
         }
 
         private void btnDetener_Click(object sender, RoutedEventArgs e)
