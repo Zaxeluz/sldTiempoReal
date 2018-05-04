@@ -133,6 +133,11 @@ namespace Grabacion
                 valoresAbsolutos.ToList().IndexOf(
                     valoresAbsolutos.Max());
 
+            float frecuenciaFundamental =
+                (float)(indiceMaximo * waveIn.WaveFormat.SampleRate) / (float)valoresAbsolutos.Length;
+
+            lblFrecuencia.Text = frecuenciaFundamental.ToString();
+
         }
 
         private void btnDetener_Click(object sender, RoutedEventArgs e)
